@@ -1,0 +1,147 @@
+groups:
+  - name: availability
+    rules:
+      - alert: HivelockDown
+        expr: sum(up{job="web"}) == 0 or absent(up{job="web"})
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: No web replica is answering.
+          runbook: docs/disaster-recovery.md
+      - alert: PublicAddressDown
+        expr: probe_success{job="public"} == 0
+        for: 3m
+        labels: { severity: critical }
+        annotations:
+          summary: The public address does not answer /ready from outside.
+      - alert: WebReplicaDown
+        expr: up{job="web"} == 0
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "Web replica {{ $labels.instance }} has not answered for 5 minutes."
+      - alert: NoWorkers
+        expr: max(agent_platform_workers_alive) == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: No worker has reported in, so nothing is running.
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(agent_platform_http_requests_total{status="5xx"}[5m]))
+            / sum(rate(agent_platform_http_requests_total[5m])) > 0.02
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "{{ $value | humanizePercentage }} of requests are failing."
+      - alert: SlowRequests
+        # Long-lived streams would count as slow, so they are left out.
+        expr: |
+          histogram_quantile(0.95, sum by (le) (rate(agent_platform_http_request_duration_seconds_bucket{route!~".*/stream"}[5m]))) > 2
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "The slowest 5% of requests take over {{ $value | humanizeDuration }}."
+      - alert: DatabasePoolExhausted
+        expr: max by (pool) (agent_platform_db_pool_waiting) > 0
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "Queries are waiting for a connection in the {{ $labels.pool }} pool."
+
+  - name: work
+    rules:
+      - alert: QueueBacklog
+        expr: max by (queue) (agent_platform_queue_depth{state="queued"}) > 100
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $labels.queue }} has {{ $value }} jobs queued. Add workers."
+      - alert: WorkHeldBack
+        expr: max by (queue) (agent_platform_queue_oldest_waiting_seconds) > 900
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "The oldest held-back work in {{ $labels.queue }} has waited over 15 minutes. A workspace is well over its limit, or workers are short."
+      - alert: JobFailures
+        expr: sum by (queue) (rate(agent_platform_job_failures_total[10m])) > 0.1
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Jobs in {{ $labels.queue }} are failing."
+      - alert: RunsFailing
+        expr: |
+          sum(rate(agent_platform_run_outcomes_total{outcome="failed"}[30m]))
+            / sum(rate(agent_platform_run_outcomes_total[30m])) > 0.2
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $value | humanizePercentage }} of workflow runs are failing."
+
+  - name: storage
+    rules:
+      - alert: DiskFilling
+        expr: |
+          node_filesystem_avail_bytes{fstype!~"tmpfs|overlay|squashfs"}
+            / node_filesystem_size_bytes{fstype!~"tmpfs|overlay|squashfs"} < 0.15
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $labels.mountpoint }} has under 15% free."
+      - alert: DiskNearlyFull
+        expr: |
+          node_filesystem_avail_bytes{fstype!~"tmpfs|overlay|squashfs"}
+            / node_filesystem_size_bytes{fstype!~"tmpfs|overlay|squashfs"} < 0.05
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "{{ $labels.mountpoint }} has under 5% free."
+
+  - name: recovery
+    rules:
+      - alert: BackupTooOld
+        expr: time() - max(agent_platform_backup_last_success_timestamp_seconds{kind!="wal"}) > 93600
+        for: 15m
+        labels: { severity: critical }
+        annotations:
+          summary: No backup has finished in the last 26 hours.
+      - alert: BackupNeverRecorded
+        expr: absent(agent_platform_backup_last_success_timestamp_seconds)
+        for: 1h
+        labels: { severity: warning }
+        annotations:
+          summary: No backup has ever been recorded. See docs/disaster-recovery.md.
+      - alert: WalArchiveStale
+        # A quiet database still ships a file each archive_timeout, so silence here means archiving has stopped.
+        expr: time() - agent_platform_backup_last_success_timestamp_seconds{kind="wal"} > 900
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: WAL has not been archived for 15 minutes, so the recovery point is slipping.
+      - alert: RestoreDrillStale
+        expr: time() - agent_platform_restore_drill_last_success_timestamp_seconds > 691200
+        for: 1h
+        labels: { severity: warning }
+        annotations:
+          summary: No restore drill has passed in the last 8 days.
+      - alert: RestoreDrillFailed
+        expr: agent_platform_restore_drill_last_result == 0
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: The last restore drill failed. A backup may not be restorable.
+
+  - name: certificates
+    rules:
+      - alert: CertificateExpiring
+        expr: probe_ssl_earliest_cert_expiry{job="public"} - time() < 14 * 86400
+        for: 1h
+        labels: { severity: warning }
+        annotations:
+          summary: The certificate expires in under 14 days, so Caddy has not managed to renew it.
+      - alert: CertificateNearlyExpired
+        expr: probe_ssl_earliest_cert_expiry{job="public"} - time() < 3 * 86400
+        for: 10m
+        labels: { severity: critical }
+        annotations:
+          summary: The certificate expires in under 3 days.

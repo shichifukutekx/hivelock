@@ -1,0 +1,29 @@
+{$DOMAIN} {
+	encode gzip
+
+	# For Prometheus on the internal network, which goes to the replicas directly.
+	respond /metrics 404
+
+	reverse_proxy {
+		# Asks the internal DNS for the web replicas, so scaling needs no change here.
+		dynamic a {
+			name web
+			port 4320
+			refresh 5s
+		}
+		lb_policy round_robin
+		# A stopping replica refuses connections, and the request goes to another one. Nothing has reached it, so this is safe for any method.
+		lb_try_duration 10s
+		lb_try_interval 250ms
+		# Caddy runs active health checks only on fixed addresses. These count real failures, and scaling changes the list above.
+		fail_duration 15s
+		max_fails 1
+		unhealthy_status 502 503 504
+		# Text from a running agent must reach the browser at once.
+		flush_interval -1
+		# Replaces anything the client sent, so rate limits cannot be dodged.
+		header_up X-Real-IP {remote_host}
+		# The same id then shows in Caddy's log and the app's.
+		header_up X-Request-Id {http.request.uuid}
+	}
+}

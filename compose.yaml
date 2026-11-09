@@ -1,0 +1,109 @@
+# Production stack. Copy .env.production.example to .env.production and .env.migrate.example to .env.migrate, and fill them in.
+# Start it with: docker compose --env-file .env.production --env-file .env.migrate up -d --build
+# .env.migrate holds the database superuser. Only the database and the migrate step see it, never web or worker.
+# Only Caddy is reachable from outside. It adds TLS and sets x-real-ip for rate limits.
+# web and worker scale separately: set WEB_REPLICAS and WORKER_REPLICAS. See docs/high-availability.md.
+# Optional additions, each added with another -f: deploy/monitoring/compose.yaml and deploy/backup/compose.yaml.
+x-app: &app
+  image: ${HIVELOCK_IMAGE:-hivelock:local}
+  build: .
+  env_file: .env.production
+  restart: unless-stopped
+  init: true
+  read_only: true
+  tmpfs: [/tmp]
+  volumes: [workspace-files:/app/data]
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  networks: [internal]
+
+services:
+  database:
+    image: pgvector/pgvector:pg18
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: agent_platform
+      POSTGRES_USER: agent_platform_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    # Each web replica can hold 18 connections and each worker 25. Raise this with the replica counts.
+    command: [postgres, -c, "max_connections=${POSTGRES_MAX_CONNECTIONS:-200}"]
+    volumes: [database:/var/lib/postgresql]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U agent_platform_admin -d agent_platform]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    networks: [internal]
+
+  migrate:
+    <<: *app
+    env_file: [.env.production, .env.migrate]
+    restart: "no"
+    command: [node, --import, tsx, src/platform/migrate.ts]
+    healthcheck: { disable: true }
+    depends_on:
+      database: { condition: service_healthy }
+
+  web:
+    <<: *app
+    environment: { PLATFORM_HOST: 0.0.0.0, PLATFORM_PORT: "4320", SHUTDOWN_DRAIN_SECONDS: "6", SHUTDOWN_GRACE_SECONDS: "25" }
+    # Sessions, rate limits and live text all live in the database, so any replica can answer anyone.
+    deploy: { replicas: "${WEB_REPLICAS:-2}" }
+    # Must be longer than the drain and grace above.
+    stop_grace_period: 40s
+    # Models, mail and connectors are outside, and the safe-fetch guard limits where these can go.
+    networks: [internal, public]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  worker:
+    <<: *app
+    command: [node, --import, tsx, src/platform/worker.ts]
+    # A worker runs customers' agents and calls no staff function, so it never gets the operator login.
+    environment: { PLATFORM_HOST: 0.0.0.0, WORKER_HTTP_PORT: "4321", SHUTDOWN_GRACE_SECONDS: "60", DATABASE_OPERATOR_URL: "" }
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:4321/ready').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    # Raise this to do more work at once. Workers share the queue safely.
+    deploy: { replicas: "${WORKER_REPLICAS:-1}" }
+    # Must be longer than the grace above, so unfinished work is handed back and not cut off.
+    stop_grace_period: 75s
+    networks: [internal, public]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  # Only for trying single sign-on, which needs the paid package. It stays on this computer and is not for production.
+  keycloak:
+    profiles: [keycloak]
+    image: quay.io/keycloak/keycloak:26.0
+    command: [start-dev]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-}
+    ports: ["127.0.0.1:8081:8080"]
+    networks: [internal, public]
+
+  proxy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["${HTTP_PORT:-80}:80", "${HTTPS_PORT:-443}:443", "${HTTPS_PORT:-443}:443/udp"]
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy:/data
+    networks: [internal, public]
+    depends_on:
+      web: { condition: service_healthy }
+
+volumes:
+  database:
+  caddy:
+  workspace-files:
+
+networks:
+  internal: { internal: true }
+  public:

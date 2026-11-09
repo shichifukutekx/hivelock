@@ -1,0 +1,13 @@
+.env
+.env.production
+.env.migrate
+.git
+node_modules
+logs
+output
+data
+backups
+eval/results
+web/dist
+.env.backup
+.env.monitoring

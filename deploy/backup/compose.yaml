@@ -1,0 +1,55 @@
+# Continuous backup: every WAL file goes to S3-compatible storage within a minute, with scheduled base backups, dumps and restore drills.
+# Optional. Copy deploy/backup/backup.env.example to .env.backup, fill it in, and add this file:
+#   docker compose -f compose.yaml -f deploy/backup/compose.yaml --env-file .env.production --env-file .env.migrate up -d --build
+# See docs/disaster-recovery.md. Paths here start from the folder holding compose.yaml.
+x-backup-image: &backup-image
+  image: ${HIVELOCK_DATABASE_IMAGE:-hivelock-database:local}
+  build: deploy/backup
+  env_file: .env.backup
+
+services:
+  database:
+    <<: *backup-image
+    command:
+      - postgres
+      - -c
+      - max_connections=${POSTGRES_MAX_CONNECTIONS:-200}
+      - -c
+      - wal_level=replica
+      - -c
+      - archive_mode=on
+      - -c
+      - archive_command=pgbackrest archive-push %p
+      # A quiet database still ships what it has this often, which sets the recovery point.
+      - -c
+      - archive_timeout=60
+    volumes:
+      - database:/var/lib/postgresql
+      - database-socket:/var/run/postgresql
+
+  backup-scheduler:
+    <<: *backup-image
+    restart: unless-stopped
+    user: postgres
+    entrypoint: [bash, /opt/hivelock/deploy/backup/scheduler.sh]
+    environment:
+      DATABASE_ADMIN_URL: postgres://agent_platform_admin@/agent_platform?host=/var/run/postgresql
+      BACKUP_DIR: /backups
+      BACKUP_STATUS_DIR: /backup-status
+      MIGRATION_DIRS: /opt/hivelock/src/platform/migrations
+    volumes:
+      - database:/var/lib/postgresql
+      - database-socket:/var/run/postgresql
+      - backups:/backups
+      - backup-status:/backup-status
+      - ./scripts:/opt/hivelock/scripts:ro
+      - ./deploy/backup:/opt/hivelock/deploy/backup:ro
+      - ./src/platform/migrations:/opt/hivelock/src/platform/migrations:ro
+    networks: [internal, public]
+    depends_on:
+      database: { condition: service_healthy }
+
+volumes:
+  database-socket:
+  backups:
+  backup-status:

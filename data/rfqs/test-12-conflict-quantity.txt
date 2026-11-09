@@ -1,0 +1,5 @@
+Corbel Pipelines - RFQ CP-61 - 2026-10-11
+Scope: supply of 10 gate valves as listed.
+Line | Qty | Description
+1 | 12 | Gate valve, 6", class 600, RTJ, WCB, trim 8, gear operated
+Pressure 60 barg, 90 C, crude oil. Certificates 3.1. Delivery 2027-03-10.

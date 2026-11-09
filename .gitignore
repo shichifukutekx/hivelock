@@ -1,0 +1,16 @@
+node_modules/
+.env
+logs/
+output/
+eval/results/
+data/rfqs/upload-*
+data/rfqs/*.pdf
+data/rfqs/*.xlsx
+web/dist/
+.env.production
+.env.migrate
+backups/
+data/workspaces/
+.DS_Store
+.env.backup
+.env.monitoring

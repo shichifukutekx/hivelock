@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hivelock</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <h1>Hivelock</h1>
+    <button id="new-run" class="secondary" type="button">New request</button>
+    <h2>Recent runs</h2>
+    <ul id="history"></ul>
+  </aside>
+
+  <main>
+    <header>
+      <label>Agent
+        <select id="agent"></select>
+      </label>
+      <p id="agent-info"></p>
+      <button id="toggle-flow" class="secondary" type="button" aria-expanded="true">Hide flow</button>
+    </header>
+
+    <div class="workspace">
+    <div class="chat">
+    <section id="thread" aria-live="polite">
+      <div id="empty" class="empty">
+        <h2>What should the agent do?</h2>
+        <p>Use test data only. Requests and documents are sent to external AI providers.</p>
+      </div>
+    </section>
+
+    <form id="composer">
+      <p id="file-chip" hidden>
+        <span id="file-name"></span>
+        <button id="file-remove" class="link" type="button" aria-label="Remove file">Remove</button>
+      </p>
+      <div class="composer-row">
+        <input id="file" type="file" accept=".pdf,.xlsx,.csv,.txt" hidden>
+        <button id="attach" class="secondary" type="button">Attach RFQ</button>
+        <textarea id="prompt" rows="2" placeholder="Ask the agent to do something" aria-label="Request"></textarea>
+        <button id="send" type="submit">Run</button>
+      </div>
+    </form>
+    </div>
+
+    <aside id="flow" aria-label="Agent flow">
+      <h2 id="flow-title">Your agent team</h2>
+      <div id="flow-canvas"></div>
+      <div id="flow-detail" hidden></div>
+    </aside>
+    </div>
+  </main>
+
+  <script src="/app.js" type="module"></script>
+</body>
+</html>

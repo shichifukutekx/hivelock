@@ -1,0 +1,18 @@
+# Every alert goes to one webhook, which is the same ALERT_WEBHOOK_URL the app uses for failed runs.
+route:
+  receiver: webhook
+  group_by: [alertname]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+
+receivers:
+  - name: webhook
+    webhook_configs:
+      - url_file: /run/secrets/alert_webhook_url
+        send_resolved: true
+
+# A site that is down explains its other alerts, so they stay quiet.
+inhibit_rules:
+  - source_matchers: [alertname="HivelockDown"]
+    target_matchers: [severity="warning"]

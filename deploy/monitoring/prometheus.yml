@@ -1,0 +1,46 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files: [/etc/hivelock/alerts.yml]
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: [alertmanager:9093]
+
+scrape_configs:
+  # The internal DNS names every replica, so a new one is found by itself.
+  - job_name: web
+    authorization: { type: Bearer, credentials_file: /run/secrets/metrics_token }
+    dns_sd_configs:
+      - names: [web]
+        type: A
+        port: 4320
+        refresh_interval: 15s
+
+  - job_name: worker
+    authorization: { type: Bearer, credentials_file: /run/secrets/metrics_token }
+    dns_sd_configs:
+      - names: [worker]
+        type: A
+        port: 4321
+        refresh_interval: 15s
+
+  - job_name: node
+    static_configs:
+      - targets: [node-exporter:9100]
+
+  # The public address, from outside: up, and how long its certificate has left.
+  - job_name: public
+    metrics_path: /probe
+    params: { module: [http_ready] }
+    static_configs:
+      - targets: [https://__DOMAIN__/ready]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115

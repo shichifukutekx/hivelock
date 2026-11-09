@@ -1,0 +1,85 @@
+# Prometheus, Alertmanager and Grafana. Optional, and off unless both this file and the profile are named:
+#   docker compose -f compose.yaml -f deploy/monitoring/compose.yaml --profile monitoring \
+#     --env-file .env.production --env-file .env.migrate --env-file .env.monitoring up -d
+# See docs/monitoring.md. Paths here start from the folder holding compose.yaml.
+x-monitoring: &monitoring
+  profiles: [monitoring]
+  restart: unless-stopped
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  networks: [internal]
+
+services:
+  prometheus:
+    <<: *monitoring
+    image: prom/prometheus:v3.8.1
+    # The file has __DOMAIN__ where the public address goes, as Prometheus does not read settings from the environment.
+    entrypoint: [/bin/sh, -c]
+    command:
+      - >-
+        sed "s/__DOMAIN__/$$DOMAIN/g" /etc/hivelock/prometheus.yml > /prometheus/prometheus.yml &&
+        exec /bin/prometheus --config.file=/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN}
+    volumes:
+      - ./deploy/monitoring/prometheus.yml:/etc/hivelock/prometheus.yml:ro
+      - ./deploy/monitoring/alerts.yml:/etc/hivelock/alerts.yml:ro
+      - prometheus:/prometheus
+    secrets: [metrics_token]
+    # 127.0.0.1 only: reach it through an SSH tunnel. It has no sign-in of its own.
+    ports: ["127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"]
+
+  alertmanager:
+    <<: *monitoring
+    image: prom/alertmanager:v0.28.1
+    command: [--config.file=/etc/hivelock/alertmanager.yml, --storage.path=/alertmanager]
+    volumes:
+      - ./deploy/monitoring/alertmanager.yml:/etc/hivelock/alertmanager.yml:ro
+      - alertmanager:/alertmanager
+    secrets: [alert_webhook_url]
+    ports: ["127.0.0.1:${ALERTMANAGER_PORT:-9093}:9093"]
+    # It has to reach the webhook outside.
+    networks: [internal, public]
+
+  blackbox:
+    <<: *monitoring
+    image: prom/blackbox-exporter:v0.27.0
+    command: [--config.file=/etc/hivelock/blackbox.yml]
+    volumes: [./deploy/monitoring/blackbox.yml:/etc/hivelock/blackbox.yml:ro]
+    # Reaches the public address from outside, as a visitor would, which is also how it reads the certificate.
+    networks: [internal, public]
+
+  node-exporter:
+    <<: *monitoring
+    image: prom/node-exporter:v1.9.1
+    command: [--path.rootfs=/host, --path.procfs=/host/proc, --path.sysfs=/host/sys, --collector.textfile.directory=/textfile]
+    pid: host
+    volumes:
+      - /:/host:ro,rslave
+      # What the backup and drill scripts write. See docs/disaster-recovery.md.
+      - backup-status:/textfile:ro
+
+  grafana:
+    <<: *monitoring
+    image: grafana/grafana:12.1.0
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?set GRAFANA_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+    volumes:
+      - ./deploy/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./deploy/monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana:/var/lib/grafana
+    ports: ["127.0.0.1:${GRAFANA_PORT:-3000}:3000"]
+
+secrets:
+  metrics_token:
+    environment: METRICS_TOKEN
+  alert_webhook_url:
+    environment: ALERT_WEBHOOK_URL
+
+volumes:
+  prometheus:
+  alertmanager:
+  grafana:
+  backup-status:

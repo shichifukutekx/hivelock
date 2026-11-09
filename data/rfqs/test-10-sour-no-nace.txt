@@ -1,0 +1,3 @@
+Dunmore Oilfield Supply RFQ DS-340, 2026-10-21
+Item 1: 3 x trunnion ball valve 4", Class 900, RTJ, body LF2, ball and stem F316, PEEK seats, gear operated, full bore.
+Service: sour gas with 3% H2S, 70 barg, 40 C. Certificates 3.1. Delivery 2027-04-20.

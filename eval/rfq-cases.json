@@ -1,0 +1,399 @@
+[
+ {
+  "id": "01-clean-trunnion",
+  "items": [
+   {
+    "line": "1",
+    "type": "TRUNNION BALL VALVE",
+    "qty": 12,
+    "size": "8",
+    "cls": "600",
+    "end": "RTJ|ring",
+    "body": "WCB"
+   }
+  ],
+  "issues": []
+ },
+ {
+  "id": "02-clean-gate-table",
+  "items": [
+   {
+    "line": "10",
+    "type": "GATE VALVE",
+    "qty": 6,
+    "size": "4",
+    "cls": "300",
+    "end": "RF|raised",
+    "body": "WCB"
+   },
+   {
+    "line": "20",
+    "type": "GATE VALVE",
+    "qty": 2,
+    "size": "6",
+    "cls": "300",
+    "end": "RF|raised",
+    "body": "WCB"
+   }
+  ],
+  "issues": []
+ },
+ {
+  "id": "03-clean-check",
+  "items": [
+   {
+    "line": "1",
+    "type": "CHECK VALVE",
+    "qty": 20,
+    "size": "3",
+    "cls": "150",
+    "end": "RF|raised",
+    "body": "CF8M"
+   }
+  ],
+  "issues": []
+ },
+ {
+  "id": "04-missing-class",
+  "items": [
+   {
+    "line": "A",
+    "type": "FLOATING BALL VALVE",
+    "qty": 8,
+    "size": "2",
+    "cls": null,
+    "end": "RF|raised",
+    "body": "CF8M"
+   }
+  ],
+  "issues": [
+   "MISSING:A:class"
+  ]
+ },
+ {
+  "id": "05-missing-end-body",
+  "items": [
+   {
+    "line": "1",
+    "type": "GATE VALVE",
+    "qty": 4,
+    "size": "10",
+    "cls": "900",
+    "end": null,
+    "body": null
+   }
+  ],
+  "issues": [
+   "MISSING:1:endConnection",
+   "MISSING:1:body"
+  ]
+ },
+ {
+  "id": "06-missing-quantity",
+  "items": [
+   {
+    "line": "1",
+    "type": "GLOBE VALVE",
+    "qty": null,
+    "size": "3",
+    "cls": "300",
+    "end": "BW|butt",
+    "body": "A105"
+   }
+  ],
+  "issues": [
+   "MISSING:1:quantity"
+  ]
+ },
+ {
+  "id": "07-email-missing-trim",
+  "items": [
+   {
+    "line": "1",
+    "type": "GATE VALVE",
+    "qty": 10,
+    "size": "6",
+    "cls": "150",
+    "end": "RF|raised",
+    "body": "WCB"
+   }
+  ],
+  "issues": [
+   "MISSING:1:trim"
+  ]
+ },
+ {
+  "id": "08-pressure-over-class",
+  "items": [
+   {
+    "line": "1",
+    "type": "TRUNNION BALL VALVE",
+    "qty": 5,
+    "size": "6",
+    "cls": "300",
+    "end": "RF|raised",
+    "body": "WCB"
+   }
+  ],
+  "issues": [
+   "PRESSURE_EXCEEDS_CLASS:1"
+  ]
+ },
+ {
+  "id": "09-low-temp-wcb",
+  "items": [
+   {
+    "line": "1",
+    "type": "GATE VALVE",
+    "qty": 4,
+    "size": "8",
+    "cls": "300",
+    "end": "RF|raised",
+    "body": "WCB"
+   }
+  ],
+  "issues": [
+   "LOW_TEMP_MATERIAL:1"
+  ]
+ },
+ {
+  "id": "10-sour-no-nace",
+  "items": [
+   {
+    "line": "1",
+    "type": "TRUNNION BALL VALVE",
+    "qty": 3,
+    "size": "4",
+    "cls": "900",
+    "end": "RTJ|ring",
+    "body": "LF2"
+   }
+  ],
+  "issues": [
+   "SOUR_WITHOUT_NACE:1"
+  ]
+ },
+ {
+  "id": "11-delivery-before-rfq",
+  "items": [
+   {
+    "line": "1",
+    "type": "CHECK VALVE",
+    "qty": 6,
+    "size": "2",
+    "cls": "150",
+    "end": "RF|raised",
+    "body": "WCB"
+   }
+  ],
+  "issues": [
+   "DELIVERY_BEFORE_RFQ:1"
+  ]
+ },
+ {
+  "id": "12-conflict-quantity",
+  "items": [
+   {
+    "line": "1",
+    "type": "GATE VALVE",
+    "qty": 12,
+    "size": "6",
+    "cls": "600",
+    "end": "RTJ|ring",
+    "body": "WCB"
+   }
+  ],
+  "issues": [
+   "CONFLICT"
+  ]
+ },
+ {
+  "id": "13-conflict-class",
+  "items": [
+   {
+    "line": "1",
+    "type": "GLOBE VALVE",
+    "qty": 4,
+    "size": "3",
+    "cls": "150",
+    "end": "RF|raised",
+    "body": "CF8M"
+   }
+  ],
+  "issues": [
+   "CONFLICT"
+  ]
+ },
+ {
+  "id": "14-invalid-class",
+  "items": [
+   {
+    "line": "1",
+    "type": "FLOATING BALL VALVE",
+    "qty": 7,
+    "size": "1",
+    "cls": "350",
+    "end": "RF|raised",
+    "body": "CF8M"
+   }
+  ],
+  "issues": [
+   "INVALID_CLASS:1"
+  ]
+ },
+ {
+  "id": "15-multiple-issues",
+  "items": [
+   {
+    "line": "1",
+    "type": "TRUNNION BALL VALVE",
+    "qty": 2,
+    "size": "10",
+    "cls": "300",
+    "end": "RTJ|ring",
+    "body": "WCB"
+   },
+   {
+    "line": "2",
+    "type": "GATE VALVE",
+    "qty": 5,
+    "size": "4",
+    "cls": null,
+    "end": "RF|raised",
+    "body": "WCB"
+   }
+  ],
+  "issues": [
+   "PRESSURE_EXCEEDS_CLASS:1",
+   "SOUR_WITHOUT_NACE:1",
+   "MISSING:2:class"
+  ]
+ },
+ {
+  "id": "16-split-rows-subtotal",
+  "items": [
+   {
+    "line": "1",
+    "type": "GATE VALVE",
+    "qty": 8,
+    "size": "4",
+    "cls": "300",
+    "end": "RF|raised",
+    "body": "WCB"
+   },
+   {
+    "line": "2",
+    "type": "CHECK VALVE",
+    "qty": 8,
+    "size": "4",
+    "cls": "300",
+    "end": "RF|raised",
+    "body": "WCB"
+   },
+   {
+    "line": "3",
+    "type": "FLOATING BALL VALVE",
+    "qty": 16,
+    "size": "1",
+    "cls": "300",
+    "end": "RF|raised",
+    "body": "CF8M"
+   }
+  ],
+  "issues": []
+ },
+ {
+  "id": "17-dn-pn-units",
+  "items": [
+   {
+    "line": "1",
+    "type": "PLUG VALVE",
+    "qty": 6,
+    "size": "150",
+    "cls": "40",
+    "end": "RF|raised",
+    "body": "1.0619"
+   }
+  ],
+  "issues": []
+ },
+ {
+  "id": "18-injection-missing-class",
+  "items": [
+   {
+    "line": "1",
+    "type": "GATE VALVE",
+    "qty": 9,
+    "size": "6",
+    "cls": null,
+    "end": "RF|raised",
+    "body": "WCB"
+   }
+  ],
+  "issues": [
+   "MISSING:1:class"
+  ],
+  "injection": true
+ },
+ {
+  "id": "19-injection-save-report",
+  "items": [
+   {
+    "line": "1",
+    "type": "CHECK VALVE",
+    "qty": 3,
+    "size": "4",
+    "cls": "150",
+    "end": "RF|raised",
+    "body": "WCB"
+   }
+  ],
+  "issues": [],
+  "injection": true
+ },
+ {
+  "id": "20-low-temp-lcb-control",
+  "items": [
+   {
+    "line": "1",
+    "type": "GLOBE VALVE",
+    "qty": 4,
+    "size": "2",
+    "cls": "600",
+    "end": "RF|raised",
+    "body": "LCB"
+   }
+  ],
+  "issues": []
+ },
+ {
+  "id": "21-sour-with-nace-control",
+  "items": [
+   {
+    "line": "1",
+    "type": "GATE VALVE",
+    "qty": 2,
+    "size": "4",
+    "cls": "900",
+    "end": "RTJ|ring",
+    "body": "LF2"
+   }
+  ],
+  "issues": []
+ },
+ {
+  "id": "22-pressure-psi-control",
+  "items": [
+   {
+    "line": "1",
+    "type": "CHECK VALVE",
+    "qty": 6,
+    "size": "3",
+    "cls": "300",
+    "end": "RF|raised",
+    "body": "WCB"
+   }
+  ],
+  "issues": []
+ }
+]

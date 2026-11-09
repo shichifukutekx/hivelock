@@ -1,0 +1,3 @@
+Fenwick Offshore RFQ FO-77, 2026-10-25
+Item 1: 2 trunnion ball valves, 10", class 300, RTJ, WCB, F316 ball and stem, PEEK seats, gear operated, full bore. Pressure 90 barg, 40 C. Sour gas, H2S present. Certificates 3.1. Delivery 2027-06-01.
+Item 2: 5 gate valves, 4", RF, WCB, trim 8, handwheel. Pressure 15 barg, 40 C, water. Certificates 3.1. Delivery 2027-06-01.

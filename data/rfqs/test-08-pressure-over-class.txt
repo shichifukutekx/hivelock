@@ -1,0 +1,3 @@
+RFQ KH-903 Kestrel Hydrocarbons 2026-10-02
+Item 1: Trunnion ball valve, 6", Class 300, RF, WCB body, F316 ball and stem, PEEK seats, gear operated, full bore, quantity 5.
+Design pressure 85 barg at 50 C. Hydrocarbon liquid, sweet. Certificates 3.1. Delivery 2027-05-01.

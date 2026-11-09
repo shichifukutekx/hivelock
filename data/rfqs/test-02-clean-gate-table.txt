@@ -1,0 +1,5 @@
+RFQ 2026-118 | Harbour Refining | Date 2026-09-30
+Line | Description | Qty | Size | Class | Ends | Body | Trim | Operator
+10 | Gate valve API 600 | 6 | 4" | 300 | RF | A216 WCB | Trim 8 | Handwheel
+20 | Gate valve API 600 | 2 | 6" | 300 | RF | A216 WCB | Trim 8 | Gear
+Certificates: EN 10204 3.1. Delivery 2027-02-15. Service: hydrocarbon, 30 barg, ambient to 200 C.

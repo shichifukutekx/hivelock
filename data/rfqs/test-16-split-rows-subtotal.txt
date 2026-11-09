@@ -1,0 +1,20 @@
+RIDGEWAY ENGINEERING - MATERIAL REQUISITION MR-3302 - 2026-10-03
+
+Item 1
+  Gate valve API 600
+  Qty 8
+  NPS 4 Class 300 RF
+  Body WCB, Trim 8, handwheel
+Item 2
+  Check valve API 594
+  Qty 8
+  NPS 4 Class 300 RF
+  Body WCB, Trim 8
+Subtotal valves: 16
+Item 3
+  Floating ball valve
+  Qty 16
+  NPS 1 Class 300 RF
+  Body CF8M, PTFE seats, 316 ball and stem, lever, full bore
+Total valves: 32
+All items: hydrocarbon, 25 barg, 80 C, certificates 3.1, delivery 2027-02-25.

@@ -1,0 +1,2 @@
+RFQ 5512 - Tessel Energy - 2026-10-20
+Pos 1: Gate valve, 10 inch, class 900, trim 12, qty 4, gear operator. Pressure 90 barg, temperature up to 180 C. Certificates EN 10204 3.1. Delivery 2027-04-10.
