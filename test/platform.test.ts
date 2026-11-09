@@ -90,10 +90,12 @@ let workspaceA: string;
 let workspaceB: string;
 
 before(async () => {
-  const reset = new pg.Client({ connectionString: ADMIN_URL });
-  await reset.connect();
-  await reset.query("drop schema public cascade; create schema public;");
-  await reset.end();
+  // Made fresh each time, so the tests need nothing set up beforehand, on a laptop or a clean CI machine.
+  const bootstrap = new pg.Client({ connectionString: "postgres:///postgres" });
+  await bootstrap.connect();
+  await bootstrap.query("drop database if exists agent_platform_test with (force)");
+  await bootstrap.query("create database agent_platform_test");
+  await bootstrap.end();
   Object.assign(process.env, settings);
   env = loadEnv();
   await migrate(env);
@@ -103,8 +105,8 @@ before(async () => {
 });
 
 after(async () => {
-  await pool.end();
-  await adminPool.end();
+  await pool?.end();
+  await adminPool?.end();
 });
 
 test("settings are refused when unsafe, and errors never show values", () => {

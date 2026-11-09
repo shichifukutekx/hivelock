@@ -16,6 +16,13 @@ set -euo pipefail
 # Postgres refuses to start on some systems without a valid locale, and this keeps text handling the same everywhere.
 export LC_ALL=C
 
+# Debian and Ubuntu keep the server programs out of PATH, under /usr/lib/postgresql/<version>/bin. The newest is used.
+if ! command -v initdb > /dev/null 2>&1; then
+  for bin in $(ls -d /usr/lib/postgresql/*/bin 2> /dev/null | sort -t/ -k5 -n -r); do
+    if [ -x "$bin/initdb" ]; then export PATH="$bin:$PATH"; break; fi
+  done
+fi
+
 here="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=scripts/pg-url.sh
 . "$here/pg-url.sh"
