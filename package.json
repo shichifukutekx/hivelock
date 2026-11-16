@@ -33,7 +33,7 @@
     "@xyflow/react": "12.12.1",
     "better-auth": "1.7.18",
     "cron-parser": "5.10.3",
-    "dotenv": "18.0.9",
+    "dotenv": "18.0.10",
     "exceljs": "4.4.0",
     "hono": "4.13.16",
     "imapflow": "2.10.2",
