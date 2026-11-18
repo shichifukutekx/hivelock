@@ -36,7 +36,7 @@
     "dotenv": "18.0.9",
     "exceljs": "4.4.0",
     "hono": "4.13.16",
-    "imapflow": "2.10.2",
+    "imapflow": "2.11.0",
     "jszip": "3.10.2",
     "lucide-react": "1.70.0",
     "mysql2": "3.24.6",
