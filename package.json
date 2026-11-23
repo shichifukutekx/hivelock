@@ -29,7 +29,7 @@
     "@langchain/langgraph": "1.7.0",
     "@langchain/openai": "1.8.0",
     "@modelcontextprotocol/sdk": "1.32.2",
-    "@tanstack/react-query": "5.106.1",
+    "@tanstack/react-query": "5.107.1",
     "@xyflow/react": "12.12.1",
     "better-auth": "1.7.18",
     "cron-parser": "5.10.3",
