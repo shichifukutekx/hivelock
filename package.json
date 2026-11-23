@@ -31,7 +31,7 @@
     "@modelcontextprotocol/sdk": "1.32.2",
     "@tanstack/react-query": "5.106.1",
     "@xyflow/react": "12.12.1",
-    "better-auth": "1.7.18",
+    "better-auth": "1.7.25",
     "cron-parser": "5.10.3",
     "dotenv": "18.0.10",
     "exceljs": "4.4.0",
